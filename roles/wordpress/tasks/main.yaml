@@ -7,34 +7,26 @@
     url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
     dest: /usr/bin/wp
     mode: 0755
-  tags: [wordpress]
+  tags: [wordpress, wp-cli]
 
 - name: Install WP-CLI tab completions
   get_url:
     url: https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
     dest: /etc/bash_completion.d
     mode: 0644
-  tags: [wordpress]
+  tags: [wordpress, wp-cli]
 
 - name: Create required directories for WordPress sites
   file:
     path: "/var/www/{{ item[0].url }}/{{ item[1] }}"
     state: directory
-    owner: "www-data"
-    group: "www-data"
-    # mode: "0755"
+    owner: "{{ item[0].project }}"
+    group: "{{ item[0].project }}"
     mode: "0750"
   with_nested:
     - "{{ sites }}"
     - ["www", "logs", "tmp"]
   tags: [wordpress]
-
-# - name: "Checking folders"
-#   stat:
-#     path: "/var/www/{{ item.url }}"
-#   register: folder_stats
-#   loop: "{{ sites }}"
-#   tags: [wordpress]
 
 - name: Download Wordpress
   command: >
@@ -57,23 +49,23 @@
     path: "/var/www/{{ item.url }}/www"
     state: directory
     recurse: yes
-    owner: www-data
-    group: www-data
+    owner: "{{ item.project }}"
+    group: "{{ item.project }}"
   loop: "{{ sites }}"
-  tags: [wordpress]
+  tags: [wordpress, permissions]
 
 - name: Set permissions for directories
   shell: "/usr/bin/find /var/www/{{ item.url }}/www/ -type d -exec chmod 750 {} \\;"
   loop: "{{ sites }}"
-  tags: [wordpress]
+  tags: [wordpress, permissions]
 
 - name: Set permissions for files
   shell: "/usr/bin/find /var/www/{{ item.url }}/www/ -type f -exec chmod 640 {} \\;"
   loop: "{{ sites }}"
-  tags: [wordpress]
+  tags: [wordpress, permissions]
 
-# - name: Restart Nginx and php
-#   command: echo "restarts"
-#   notify:
-#     - Restart PHP
-#     - Restart Nginx
+- name: Reload Nginx and php
+  command: echo "reloads"
+  notify:
+    - reload php
+    - reload nginx
