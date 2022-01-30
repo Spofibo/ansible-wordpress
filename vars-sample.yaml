@@ -1,0 +1,15 @@
+# Copy config to a file named vars.yaml and change to suit your own needs
+
+################################################################################
+# Certbot/letsencrypt                                                          #
+################################################################################
+certbot:
+  country_name: "CH"
+  email_address: "contact@spofibo.com"
+  organization_name: "Spofibo"
+  common_name: "spofibo.com"
+
+################################################################################
+# PHP                                                                          #
+################################################################################
+php_version: 8.1
