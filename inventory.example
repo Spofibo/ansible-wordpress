@@ -1,0 +1,6 @@
+[all:vars]
+sites=[{"db_host":"mysql.com","db_name":"wp_1_db","db_password":"mock","db_port":3306,"db_username":"wp_1_u","project":"alpha","url":"alpha.com"},{"db_host":"mysql.com","db_name":"wp_2_db","db_password":"mock","db_port":3306,"db_username":"wp_2_u","project":"beta","url":"beta.com"}]
+
+[servers]
+
+i-0a738df1dc7f00fb0 ansible_host=127.0.0.1 ansible_ssh_user=ec2-user ansible_python_interpreter=/usr/bin/python3
