@@ -9,8 +9,6 @@
     force: yes
     update_cache: yes
 
-- debug: var=playbook_dir
-
 - name: Check for existing dhparams.pem
   become: false
   delegate_to: localhost
@@ -36,7 +34,6 @@
     src: ./files/{{ item }}
     dest: /etc/nginx/{{ item }}
   with_items:
-    - nginx.conf
     - mime.types
     - fastcgi.conf
     - fastcgi_params
@@ -69,7 +66,13 @@
     - /etc/nginx/sites-enabled/
   tags: [nginx]
 
-- name: Sets Nginx conf file
+- name: Configure nginx.conf
+  template:
+    src: ./templates/nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  tags: [nginx]
+
+- name: Configure vhost for domains
   template:
     src: ./templates/vhost.conf.j2
     dest: "/etc/nginx/sites-available/{{ item.url }}"
