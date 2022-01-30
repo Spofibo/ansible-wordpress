@@ -3,3 +3,4 @@
 # Ansible
 inventory
 ansible.cfg
+roles/nginx/files/dhparams.pem
