@@ -1,0 +1,9 @@
+os:
+  timezone: "Europe/London"
+  packages:
+    - fail2ban
+    - git
+    # - letsencrypt
+    - mcrypt
+    - net-tools
+  admin_user: admin

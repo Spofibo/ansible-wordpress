@@ -41,8 +41,7 @@ server {
 
         include "fastcgi_params";
         fastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;
-        fastcgi_index               index.php;
-        fastcgi_pass                fpm;
+        fastcgi_index  index.php;
 
         include "globals/hsts.conf";
         include "globals/security-headers.conf";

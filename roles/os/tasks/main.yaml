@@ -6,7 +6,7 @@
 
 - name: Set timezone
   timezone:
-    name: "Europe/London"
+    name: "{{ os.timezone }}"
   tags: [system]
 
 - name: Installation install software-properties-common
@@ -23,15 +23,10 @@
 
 - name: Install system packages
   apt: 
-    name: "{{item}}"
+    name: "{{ item }}"
     state: latest
     update_cache: yes
-  with_items:
-    - fail2ban
-    - git
-    # - letsencrypt
-    - mcrypt
-    - net-tools
+  loop: "{{ os.packages }}"
   tags: [system]
 
 - name: "Add nginx repo"
@@ -43,3 +38,40 @@
   apt_repository:
     repo: "ppa:ondrej/php"
   tags: [system]
+
+# Sudo Group Setup
+- name: Make sure we have a 'wheel' group
+  group:
+    name: wheel
+    state: present
+
+- name: Allow 'wheel' group to have passwordless sudo
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: "^%wheel"
+    line: "%wheel ALL=(ALL) NOPASSWD: ALL"
+    validate: "/usr/sbin/visudo -cf %s"
+
+# User + Key Setup
+- name: Create a new regular user with sudo privileges
+  user:
+    name: "{{ os.admin_user }}"
+    state: present
+    groups: wheel
+    append: true
+    create_home: true
+    shell: /bin/bash
+
+# - name: Set authorized key for remote user
+#   authorized_key:
+#     user: "{{ os.admin_user }}"
+#     state: present
+#     # key: "{{ copy_local_key }}"
+
+- name: Disable password authentication for root
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: "^#?PermitRootLogin"
+    line: "PermitRootLogin prohibit-password"
