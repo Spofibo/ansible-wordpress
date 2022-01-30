@@ -1,0 +1,79 @@
+---
+################################################################################
+# WordPress Configuration                                                      #
+################################################################################
+- name: Install WP-CLI
+  get_url:
+    url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    dest: /usr/bin/wp
+    mode: 0755
+  tags: [wordpress]
+
+- name: Install WP-CLI tab completions
+  get_url:
+    url: https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
+    dest: /etc/bash_completion.d
+    mode: 0644
+  tags: [wordpress]
+
+- name: Create required directories for WordPress sites
+  file:
+    path: "/var/www/{{ item[0].url }}/{{ item[1] }}"
+    state: directory
+    owner: "www-data"
+    group: "www-data"
+    # mode: "0755"
+    mode: "0750"
+  with_nested:
+    - "{{ sites }}"
+    - ["www", "logs", "tmp"]
+  tags: [wordpress]
+
+# - name: "Checking folders"
+#   stat:
+#     path: "/var/www/{{ item.url }}"
+#   register: folder_stats
+#   loop: "{{ sites }}"
+#   tags: [wordpress]
+
+- name: Download Wordpress
+  command: >
+    wp core download
+    --allow-root --no-color --path='/var/www/{{ item.url }}/www'
+  args:
+    creates: "/var/www/{{ item.url }}/www/index.php"
+  loop: "{{ sites }}"
+  tags: [wordpress]
+
+- name: Set up wp-config
+  template:
+    src: ./templates/wp-config.php.j2
+    dest: "/var/www/{{ item.url }}/www/wp-config.php"
+  loop: "{{ sites }}"
+  tags: [wordpress, wp-config]
+
+- name: Set ownership
+  file:
+    path: "/var/www/{{ item.url }}/www"
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+  loop: "{{ sites }}"
+  tags: [wordpress]
+
+- name: Set permissions for directories
+  shell: "/usr/bin/find /var/www/{{ item.url }}/www/ -type d -exec chmod 750 {} \\;"
+  loop: "{{ sites }}"
+  tags: [wordpress]
+
+- name: Set permissions for files
+  shell: "/usr/bin/find /var/www/{{ item.url }}/www/ -type f -exec chmod 640 {} \\;"
+  loop: "{{ sites }}"
+  tags: [wordpress]
+
+# - name: Restart Nginx and php
+#   command: echo "restarts"
+#   notify:
+#     - Restart PHP
+#     - Restart Nginx
