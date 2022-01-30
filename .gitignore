@@ -1,7 +1,15 @@
 .DS_Store
 
+# Vagrant
+.vagrant
+
 # Ansible
 vars.yaml
 inventory
 ansible.cfg
 roles/nginx/files/dhparams.pem
+roles/*
+!roles/os
+!roles/php
+!roles/nginx
+!roles/wordpress
