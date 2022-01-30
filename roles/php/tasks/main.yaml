@@ -5,49 +5,64 @@
 - name: Install PHP Packages
   apt: name={{ item }} update_cache=yes state=latest
   loop:
-    # - "php{{ php_version }}"
-    - "php{{ php_version }}-apcu"
-    - "php{{ php_version }}-cli"
-    - "php{{ php_version }}-curl"
-    - "php{{ php_version }}-fpm"
-    - "php{{ php_version }}-imagick"
-    - "php{{ php_version }}-intl"
-    # - "php{{ php_version }}-json"
-    - "php{{ php_version }}-mbstring"
-    - "php{{ php_version }}-mysql"
-    - "php{{ php_version }}-xml"
-    - "php{{ php_version }}-zip"
+    - "php{{ php.version }}-apcu"
+    - "php{{ php.version }}-cli"
+    - "php{{ php.version }}-curl"
+    - "php{{ php.version }}-fpm"
+    - "php{{ php.version }}-imagick"
+    - "php{{ php.version }}-intl"
+    - "php{{ php.version }}-mbstring"
+    - "php{{ php.version }}-mysql"
+    - "php{{ php.version }}-xml"
+    - "php{{ php.version }}-zip"
   tags: [php]
-
-- name: Remove apache2 installed packages with php
-  action: apt pkg={{item}} state=absent purge=yes
-  with_items:
-    - apache2
-    - apache2-bin
-    - apache2-data
-    - apache2-utils
-    - "libapache2-mod-php{{ php_version }}"
-  tags: [nginx, apache2]
 
 - name: Copy APCu configuration
   copy:
     src: ./files/apcu.ini
-    dest: "/etc/php/{{ php_version }}/mods-available/apcu.ini"
-  tags: [php]
+    dest: "/etc/php/{{ php.version }}/mods-available/apcu.ini"
+  tags: [php, config]
 
 - name: Set PHP upload max filesize
   lineinfile:
-    dest: /etc/php/{{ php_version }}/fpm/php.ini
+    dest: /etc/php/{{ php.version }}/fpm/php.ini
     regexp: "^upload_max_filesize"
-    line: "upload_max_filesize = 64M"
+    line: "upload_max_filesize = {{ php.upload_max_filesize }}"
     state: present
   notify: reload php
+  tags: [php, config]
 
 - name: Set PHP post max filesize
   lineinfile:
-    dest: /etc/php/{{ php_version }}/fpm/php.ini
+    dest: /etc/php/{{ php.version }}/fpm/php.ini
     regexp: "^post_max_size"
-    line: "post_max_size = 64M"
+    line: "post_max_size = {{ php.post_max_size }}"
     state: present
   notify: reload php
+  tags: [php, config]
 
+# User + Key Setup
+- name: Create new users for sites
+  user:
+    name: "{{ item.project }}"
+    state: present
+    # groups: "{{ nginx.user }}"
+    groups: www-data
+    append: true
+    create_home: false
+    # shell: /bin/bash
+  loop: "{{ sites }}"
+  tags: [php, users]
+
+- name: Configure fpm pools for all the sites
+  template:
+    src: ./templates/fpm-pool.conf.j2
+    dest: "/etc/php/{{ php.version }}/fpm/pool.d/{{ item.project }}.conf"
+  with_items: "{{ sites }}"
+  tags: [php, pools]
+
+- name: Remove "default" php pool
+  file:
+    path: "/etc/php/{{ php.version }}/fpm/pool.d/www.conf"
+    state: absent
+  notify: reload php
