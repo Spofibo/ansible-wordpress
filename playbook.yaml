@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: true
+
+  roles:
+    - role: os
+      tags: [system]
+
+    - role: php
+      tags: [php]
+
+    - role: wordpress
+      tags: [wordpress]
+
+    - role: nginx
+      tags: [nginx]
