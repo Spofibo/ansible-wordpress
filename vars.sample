@@ -1,9 +1,21 @@
 # Copy config to a file named vars.yaml and change to suit your own needs
 
 ################################################################################
+# System                                                                       #
+################################################################################
+os:
+  timezone: "Europe/London"
+  packages:
+    - fail2ban
+    - git
+    - mcrypt
+    - net-tools
+  admin_user: walter
+
+################################################################################
 # Certbot/letsencrypt                                                          #
 ################################################################################
-certbot:
+ssl:
   country_name: "CH"
   email_address: "contact@spofibo.com"
   organization_name: "Spofibo"
@@ -12,4 +24,8 @@ certbot:
 ################################################################################
 # PHP                                                                          #
 ################################################################################
-php_version: 8.1
+php:
+  version: 8.1
+  upload_max_filesize: 64M
+  post_max_size: 64M
+  user_group: www-data
