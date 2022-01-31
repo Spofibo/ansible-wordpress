@@ -1,6 +1,6 @@
 ---
 ################################################################################
-# NGINX Configuration                                                          #
+# NGINX                                                                        #
 ################################################################################
 - name: Install Nginx
   apt:
@@ -9,19 +9,23 @@
     force: yes
     update_cache: yes
 
+##############
+## SSL keys ##
+##############
 - name: Check for existing dhparams.pem
   become: false
   delegate_to: localhost
   stat:
     path: "{{ playbook_dir }}/roles/nginx/files/dhparams.pem"
   register: result
+  tags: [nginx, ssl]
 
 - name: Copy dhparams.pem to /etc/nginx
   copy:
     src: ./files/dhparams.pem
     dest: /etc/nginx/dhparams.pem
   when: result.stat.exists
-  tags: [nginx]
+  tags: [nginx, ssl]
 
 - name: Generate Diffie-Hellman parameters with the default size (4096 bits)
   openssl_dhparam:
@@ -29,6 +33,33 @@
   when: not result.stat.exists
   tags: [nginx, ssl]
 
+- name: Create key pair for the server
+  openssl_privatekey:
+    path: /etc/ssl/private/nginx-selfsigned.pem
+    size: 2048
+  tags: [nginx, ssl]
+
+- name: Create certificate signing request
+  openssl_csr:
+    country_name: "{{ ssl.country_name }}"
+    email_address: "{{ ssl.email_address }}"
+    organization_name: "{{ ssl.organization_name }}"
+    common_name: "{{ ssl.common_name }}"
+    path: /etc/ssl/private/nginx-selfsigned.csr
+    privatekey_path: /etc/ssl/private/nginx-selfsigned.pem
+  tags: [nginx, ssl]
+
+- name: Create self-signed certificate
+  openssl_certificate:
+    csr_path: /etc/ssl/private/nginx-selfsigned.csr
+    path: /etc/ssl/certs/nginx-selfsigned.crt
+    privatekey_path: /etc/ssl/private/nginx-selfsigned.pem
+    provider: selfsigned
+  tags: [nginx, ssl]
+
+#####################
+## Configure NGINX ##
+#####################
 - name: Copy nginx config files to /etc/nginx
   copy:
     src: ./files/{{ item }}
@@ -72,6 +103,9 @@
     dest: /etc/nginx/nginx.conf
   tags: [nginx]
 
+################################
+## Configure vhosts for sites ##
+################################
 - name: Configure vhost for domains
   template:
     src: ./templates/vhost.conf.j2
