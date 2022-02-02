@@ -1,5 +1,6 @@
 [all:vars]
 sites=[{"db_host":"mysql.com","db_name":"wp_1_db","db_password":"mock","db_port":3306,"db_username":"wp_1_u","project":"alpha","url":"alpha.com"},{"db_host":"mysql.com","db_name":"wp_2_db","db_password":"mock","db_port":3306,"db_username":"wp_2_u","project":"beta","url":"beta.com"}]
+env=prod
 
 [servers]
 
