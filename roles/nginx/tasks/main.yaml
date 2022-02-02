@@ -18,25 +18,26 @@
   stat:
     path: "{{ playbook_dir }}/roles/nginx/files/dhparams.pem"
   register: result
-  tags: [nginx, ssl]
+  tags: [ssl]
 
 - name: Copy dhparams.pem to /etc/nginx
   copy:
     src: ./files/dhparams.pem
     dest: /etc/nginx/dhparams.pem
   when: result.stat.exists
-  tags: [nginx, ssl]
+  tags: [ssl]
 
 - name: Generate Diffie-Hellman parameters with the default size (4096 bits)
   openssl_dhparam:
     path: /etc/nginx/dhparams.pem
   when: not result.stat.exists
-  tags: [nginx, ssl]
+  tags: [ssl]
 
 - name: Create key pair for the server
   openssl_privatekey:
     path: /etc/ssl/private/nginx-selfsigned.pem
     size: 2048
+  when: env == "dev"
   tags: [nginx, ssl]
 
 - name: Create certificate signing request
@@ -47,6 +48,7 @@
     common_name: "{{ ssl.common_name }}"
     path: /etc/ssl/private/nginx-selfsigned.csr
     privatekey_path: /etc/ssl/private/nginx-selfsigned.pem
+  when: env == "dev"
   tags: [nginx, ssl]
 
 - name: Create self-signed certificate
@@ -55,6 +57,7 @@
     path: /etc/ssl/certs/nginx-selfsigned.crt
     privatekey_path: /etc/ssl/private/nginx-selfsigned.pem
     provider: selfsigned
+  when: env == "dev"
   tags: [nginx, ssl]
 
 #####################
@@ -68,25 +71,25 @@
     - mime.types
     - fastcgi.conf
     - fastcgi_params
-  tags: [nginx]
+  tags: [nginx-conf]
 
 - name: Copy scripts directory to /etc/nginx
   copy:
     src: ./files/scripts/
     dest: /etc/nginx/scripts/
-  tags: [nginx]
+  tags: [nginx-conf]
 
 - name: Copy globals directory to /etc/nginx
   copy:
     src: ./files/globals/
     dest: /etc/nginx/globals/
-  tags: [nginx]
+  tags: [nginx-conf]
 
 - name: Copy conf.d directory to /etc/nginx
   copy:
     src: ./files/conf.d/
     dest: /etc/nginx/conf.d/
-  tags: [nginx]
+  tags: [nginx-conf]
 
 - name: Create required directories for Nginx
   file:
@@ -95,36 +98,17 @@
   loop:
     - /etc/nginx/sites-available/
     - /etc/nginx/sites-enabled/
-  tags: [nginx]
+  tags: [nginx-conf]
 
 - name: Configure nginx.conf
   template:
     src: ./templates/nginx.conf.j2
     dest: /etc/nginx/nginx.conf
-  tags: [nginx]
-
-################################
-## Configure vhosts for sites ##
-################################
-- name: Configure vhost for domains
-  template:
-    src: ./templates/vhost.conf.j2
-    dest: "/etc/nginx/sites-available/{{ item.url }}"
-  loop: "{{ sites }}"
-  tags: [nginx]
-
-- name: Enables new site
-  file:
-    src: "/etc/nginx/sites-available/{{ item.url }}"
-    dest: "/etc/nginx/sites-enabled/{{ item.url }}"
-    state: link
-  loop: "{{ sites }}"
-  notify: reload nginx
-  tags: [nginx]
+  tags: [nginx-conf]
 
 - name: Removes "default" site
   file:
     path: "/etc/nginx/conf.d/default.conf"
     state: absent
   notify: reload nginx
-  tags: [nginx]
+  tags: [nginx-conf]
