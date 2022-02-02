@@ -2,19 +2,27 @@
 ################################################################################
 # WordPress Configuration                                                      #
 ################################################################################
+- name: Check for WP-CLI
+  stat:
+    path: /usr/bin/wp
+  register: wpcli
+  tags: [wp-cli]
+
 - name: Install WP-CLI
   get_url:
     url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
     dest: /usr/bin/wp
     mode: 0755
-  tags: [wordpress, wp-cli]
+  when: not wpcli.stat.exists
+  tags: [wp-cli]
 
 - name: Install WP-CLI tab completions
   get_url:
     url: https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
     dest: /etc/bash_completion.d
     mode: 0644
-  tags: [wordpress, wp-cli]
+  when: not wpcli.stat.exists
+  tags: [wp-cli]
 
 - name: Create required directories for WordPress sites
   file:
@@ -63,6 +71,25 @@
   shell: "/usr/bin/find /var/www/{{ item.url }}/www/ -type f -exec chmod 640 {} \\;"
   loop: "{{ sites }}"
   tags: [wordpress, permissions]
+
+################################
+## Configure vhosts for sites ##
+################################
+- name: Configure vhost for domains
+  template:
+    src: ./templates/vhost.conf.j2
+    dest: "/etc/nginx/sites-available/{{ item.url }}"
+  loop: "{{ sites }}"
+  tags: [nginx]
+
+- name: Enables new site
+  file:
+    src: "/etc/nginx/sites-available/{{ item.url }}"
+    dest: "/etc/nginx/sites-enabled/{{ item.url }}"
+    state: link
+  loop: "{{ sites }}"
+  notify: reload nginx
+  tags: [nginx]
 
 - name: Reload Nginx and php
   command: echo "reloads"
