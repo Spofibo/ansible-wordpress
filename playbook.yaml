@@ -9,8 +9,11 @@
     - role: php
       tags: [php]
 
-    - role: wordpress
-      tags: [wordpress]
-
     - role: nginx
       tags: [nginx]
+
+    - role: certbot
+      tags: [certbot]
+
+    - role: wordpress
+      tags: [wordpress]
