@@ -13,3 +13,4 @@ roles/*
 !roles/php
 !roles/nginx
 !roles/wordpress
+!roles/certbot
