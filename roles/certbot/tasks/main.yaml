@@ -1,0 +1,43 @@
+---
+- name: Install certbot snap package
+  snap:
+    name: certbot
+    classic: true
+
+- name: Trust certbot plugins
+  command: snap set certbot trust-plugin-with-root=ok
+
+- name: Install certbot-dns-cloudflare snap
+  snap:
+    name: certbot-dns-cloudflare
+
+- name: Symlink snaps into place
+  file:
+    src: "/snap/bin/{{ item }}"
+    dest: "/usr/bin/{{ item }}"
+    state: link
+  ignore_errors: "{{ ansible_check_mode }}"
+  loop:
+    - certbot
+
+- name: Create Certbot folder - /etc/letsencrypt
+  file:
+    path: /etc/letsencrypt
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+
+- name: Certbot Template
+  template:
+    src: ./templates/dnscloudflare.ini.j2
+    dest: /etc/letsencrypt/dnscloudflare.ini
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Certbot | Generate Certificate
+  command: certbot certonly --non-interactive --agree-tos --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/dnscloudflare.ini -m {{ ssl.email_address }} -d {{ item.url }}
+  args:
+    creates: /etc/letsencrypt/renewal/{{ item.url }}.conf
+  loop: "{{ sites }}"
