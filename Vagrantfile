@@ -4,11 +4,33 @@
 require 'getoptlong'
 
 opts = GetoptLong.new(
+    [ '--env', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--tags', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--verbose', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--ssh-port', GetoptLong::OPTIONAL_ARGUMENT ],
 )
 
+env = 'prod'
+sites = [
+    {
+      "db_host": "mysql.com",
+      "db_name": "wp_1_db",
+      "db_password": "mock",
+      "db_port": 3306,
+      "db_username": "wp_1_u",
+      "project": "alpha",
+      "url": "alpa.com"
+    },
+    {
+      "db_host": "mysql.com",
+      "db_name": "wp_2_db",
+      "db_password": "mock",
+      "db_port": 3306,
+      "db_username": "wp_2_u",
+      "project": "beta",
+      "url": "beta.com"
+    }
+]
 tags = 'all'
 verbose = ''
 ssh_port = ''
@@ -54,30 +76,11 @@ Vagrant.configure("2") do |config|
             ansible.verbose = verbose
 
             ansible.extra_vars = {
-                sites: [
-                    {
-                      "db_host": "mysql.com",
-                      "db_name": "wp_1_db",
-                      "db_password": "mock",
-                      "db_port": 3306,
-                      "db_username": "wp_1_u",
-                      "project": "alpha",
-                      "url": "alpha.com"
-                    },
-                    {
-                      "db_host": "mysql.com",
-                      "db_name": "wp_2_db",
-                      "db_password": "mock",
-                      "db_port": 3306,
-                      "db_username": "wp_2_u",
-                      "project": "beta",
-                      "url": "beta.com"
-                    }
-                ]
+                env: env,
+                sites: sites
             }
 
             ansible.playbook = "playbook.yaml"
-            ansible.galaxy_role_file = "requirements.yaml"
         end
     end
 end
