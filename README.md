@@ -20,6 +20,12 @@ This playbook **does not** install the database service, and instead it expects 
 ## Usage
 
 * Copy `vars.example` to `vars.yaml` and update the configuration paramaters
+* Copy `inventory.example` to `inventory` and update the `servers` section to figure your targeted servers
+* Run
+
+```sh
+ansible-playbook -i inventory playbook.yaml
+```
 
 ### Local Testing
 
