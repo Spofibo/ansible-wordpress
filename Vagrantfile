@@ -11,26 +11,6 @@ opts = GetoptLong.new(
 )
 
 env = 'prod'
-sites = [
-    {
-      "db_host": "mysql.com",
-      "db_name": "wp_1_db",
-      "db_password": "mock",
-      "db_port": 3306,
-      "db_username": "wp_1_u",
-      "project": "alpha",
-      "url": "alpa.com"
-    },
-    {
-      "db_host": "mysql.com",
-      "db_name": "wp_2_db",
-      "db_password": "mock",
-      "db_port": 3306,
-      "db_username": "wp_2_u",
-      "project": "beta",
-      "url": "beta.com"
-    }
-]
 tags = 'all'
 verbose = ''
 ssh_port = ''
@@ -76,8 +56,7 @@ Vagrant.configure("2") do |config|
             ansible.verbose = verbose
 
             ansible.extra_vars = {
-                env: env,
-                sites: sites
+                env: env
             }
 
             ansible.playbook = "playbook.yaml"
