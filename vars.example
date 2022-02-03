@@ -35,6 +35,11 @@ php:
 ################################################################################
 # Wordpress                                                                    #
 ################################################################################
+
+##
+# This can be removed if, for example, you dinamically generate it inside the
+# inventory file.
+##
 sites:
   - name: alpha
     url: alpha.com
