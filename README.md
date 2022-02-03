@@ -69,7 +69,7 @@ Give a ⭐️ if this project helped you!
 
 Copyright © 2022 [Alex Budurovici](https://github.com/w0rldart).
 
-This project is [AGPL--3.0](https://github.com/spofibo/ansible-wordpress/blob/master/LICENSE) licensed.
+This project is [AGPL-3.0-or-later](https://github.com/spofibo/ansible-wordpress/blob/master/LICENSE) licensed.
 
 ***
 _This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
