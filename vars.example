@@ -31,3 +31,24 @@ php:
   upload_max_filesize: 64M
   post_max_size: 64M
   user_group: www-data
+
+################################################################################
+# Wordpress                                                                    #
+################################################################################
+sites:
+  - name: alpha
+    url: alpha.com
+    db:
+      - host: mysql.com
+        port: 3306
+        name: wp_1_db
+        password: mock
+        username: wp_1_u
+  - name: beta
+    url: beta.com
+    db:
+      - host: mysql.com
+        port: 3306
+        name: wp_2_db
+        password: mock
+        username: wp_2_u
