@@ -80,7 +80,7 @@
     src: ./templates/vhost.conf.j2
     dest: "/etc/nginx/sites-available/{{ item.url }}"
   loop: "{{ sites }}"
-  tags: [nginx]
+  tags: [vhosts]
 
 - name: Enables new site
   file:
@@ -89,7 +89,7 @@
     state: link
   loop: "{{ sites }}"
   notify: reload nginx
-  tags: [nginx]
+  tags: [vhosts]
 
 - name: Reload Nginx and php
   command: echo "reloads"
