@@ -56,7 +56,7 @@ pm.max_spare_servers = 3
 
 ; The access log file
 ; Default: not set
-access.log = /var/www/{{ item.url }}/logs/$pool.access.log
+access.log = /var/www/{{ item.url }}/logs/php-access.log
 
 ; The access log format.
 ; Default: "%R - %u %t \"%m %r\" %s"
@@ -65,7 +65,7 @@ access.format = "%R - %u %t \"%m %r%Q%q\" %s %f %{milli}d %{kilo}M %C%%"
 ; The log file for slow requests
 ; Default Value: not set
 ; Note: slowlog is mandatory if request_slowlog_timeout is set
-slowlog = /var/www/{{ item.url }}/logs/$pool.log.slow
+slowlog = /var/www/{{ item.url }}/logs/php-slow.log
 
 ; The timeout for serving a single request after which a PHP backtrace will be
 ; dumped to the 'slowlog' file. A value of '0s' means 'off'.
@@ -177,7 +177,7 @@ slowlog = /var/www/{{ item.url }}/logs/$pool.log.slow
 ; Default Value: nothing is defined by default except the values in php.ini and
 ;                specified at startup with the -d argument
 ;php_admin_value[sendmail_path] = /usr/sbin/sendmail -t -i -f www@my.domain.com
-;php_flag[display_errors] = off
-;php_admin_value[error_log] = /var/log/fpm-php.www.log
-;php_admin_flag[log_errors] = on
+php_flag[display_errors] = off
+php_admin_value[error_log] = /var/www/{{ item.url }}/logs/php-error.log
+php_admin_flag[log_errors] = on
 ;php_admin_value[memory_limit] = 32M
