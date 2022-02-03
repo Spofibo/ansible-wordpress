@@ -7,6 +7,7 @@ group = {{ item.name }}
 listen = /run/php/php8.1-{{ item.name }}-fpm.sock
 listen.owner = {{ item.name }}
 listen.group = {{ item.name }}
+listen.mode = 0660
 listen.allowed_clients = 127.0.0.1
 
 pm = dynamic
