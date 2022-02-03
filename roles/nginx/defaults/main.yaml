@@ -3,5 +3,3 @@ ssl:
   email_address: "contact@spofibo.com"
   organization_name: "Spofibo"
   common_name: "spofibo.com"
-
-certbot_cloudflare_api_token: ""
