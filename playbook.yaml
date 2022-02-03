@@ -2,6 +2,9 @@
 - hosts: all
   become: true
 
+  vars_files:
+    - vars.yaml
+
   roles:
     - role: os
       tags: [system]
