@@ -28,8 +28,8 @@
   file:
     path: "/var/www/{{ item[0].url }}/{{ item[1] }}"
     state: directory
-    owner: "{{ item[0].project }}"
-    group: "{{ item[0].project }}"
+    owner: "{{ item[0].name }}"
+    group: "{{ item[0].name }}"
     mode: "0750"
   with_nested:
     - "{{ sites }}"
@@ -57,8 +57,8 @@
     path: "/var/www/{{ item.url }}/www"
     state: directory
     recurse: yes
-    owner: "{{ item.project }}"
-    group: "{{ item.project }}"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
   loop: "{{ sites }}"
   tags: [wordpress, permissions]
 

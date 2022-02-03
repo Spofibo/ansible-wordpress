@@ -38,8 +38,8 @@ server {
     include globals/auto-versioning-support.conf;
 
      location ~ \.php$ {
-        {# fastcgi_pass unix:/var/run/php/php8.1-{{ item.project }}-fpm.sock; #}
-        fastcgi_pass unix:/var/run/php/{{ php.version }}-{{ item.project }}-fpm.sock;
+        {# fastcgi_pass unix:/var/run/php/php8.1-{{ item.name }}-fpm.sock; #}
+        fastcgi_pass unix:/var/run/php/{{ php.version }}-{{ item.name }}-fpm.sock;
         fastcgi_split_path_info ^(.+\.php)(/.*)$;
         if (!-f $document_root$fastcgi_script_name) { return 404; }
 

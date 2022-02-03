@@ -15,13 +15,13 @@
     - "php{{ php.version }}-mysql"
     - "php{{ php.version }}-xml"
     - "php{{ php.version }}-zip"
-  tags: [php]
+  tags: [php-packages]
 
 - name: Copy APCu configuration
   copy:
     src: ./files/apcu.ini
     dest: "/etc/php/{{ php.version }}/mods-available/apcu.ini"
-  tags: [php, config]
+  tags: [php-apc]
 
 - name: Set PHP upload max filesize
   lineinfile:
@@ -30,7 +30,7 @@
     line: "upload_max_filesize = {{ php.upload_max_filesize }}"
     state: present
   notify: reload php
-  tags: [php, config]
+  tags: [php-ini]
 
 - name: Set PHP post max filesize
   lineinfile:
@@ -39,27 +39,26 @@
     line: "post_max_size = {{ php.post_max_size }}"
     state: present
   notify: reload php
-  tags: [php, config]
+  tags: [php-ini]
 
-# User + Key Setup
 - name: Create new users for sites
   user:
-    name: "{{ item.project }}"
+    name: "{{ item.name }}"
     state: present
-    # groups: "{{ nginx.user }}"
-    groups: www-data
+    groups: "{{ php.user_group }}"
     append: true
     create_home: false
+    home: "/var/www/{{ item.name }}"
     # shell: /bin/bash
   loop: "{{ sites }}"
-  tags: [php, users]
+  tags: [php-users]
 
 - name: Configure fpm pools for all the sites
   template:
     src: ./templates/fpm-pool.conf.j2
-    dest: "/etc/php/{{ php.version }}/fpm/pool.d/{{ item.project }}.conf"
+    dest: "/etc/php/{{ php.version }}/fpm/pool.d/{{ item.name }}.conf"
   with_items: "{{ sites }}"
-  tags: [php, pools]
+  tags: [php-pools]
 
 - name: Remove "default" php pool
   file:

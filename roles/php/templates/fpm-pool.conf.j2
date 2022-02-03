@@ -1,12 +1,12 @@
 {{ ansible_managed | comment(decoration='; ') }}
 
-[{{ item.project }}]
+[{{ item.name }}]
 
-user = {{ item.project }}
-group = {{ item.project }}
-listen = /run/php/php8.1-{{ item.project }}-fpm.sock
-listen.owner = {{ item.project }}
-listen.group = {{ item.project }}
+user = {{ item.name }}
+group = {{ item.name }}
+listen = /run/php/php8.1-{{ item.name }}-fpm.sock
+listen.owner = {{ item.name }}
+listen.group = {{ item.name }}
 listen.allowed_clients = 127.0.0.1
 
 pm = dynamic
