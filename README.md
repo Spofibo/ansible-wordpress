@@ -9,6 +9,14 @@
 It installs and configures Nginx, PHP 8.1, and Certbot for the SSL certificates.
 This playbook **does not** install the database service, and instead it expects variables to connect to a remote database.
 
+- For each site the following will get created
+    - a directory in `/var/www/$NAME` with `www`, `tmp` and `logs` subdirectories
+    - a user associated to the directory above
+    - separate php fpm pools
+- Uses certbot-dns-cloudflare plugin to validate your domains and generate the ssl certificates
+- If you set env=dev it creates self-signed SSL certitifactes
+- You can provide a dhparams.pem file in `roles/nginx/files/dhparams.pem` to be copied, or it will generate one for you (it'll take some time though)
+
 ## Requirements
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 - [Cloudflare API token](https://developers.cloudflare.com/api/tokens/create) for the sites you want to manage
