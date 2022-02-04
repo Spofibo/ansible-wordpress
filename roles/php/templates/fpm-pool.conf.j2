@@ -5,8 +5,8 @@
 user = {{ item.name }}
 group = {{ item.name }}
 listen = /run/php/php8.1-{{ item.name }}-fpm.sock
-listen.owner = {{ item.name }}
-listen.group = {{ item.name }}
+listen.owner = {{ php.user_group }}
+listen.group = {{ php.user_group }}
 listen.mode = 0660
 listen.allowed_clients = 127.0.0.1
 
@@ -112,11 +112,14 @@ slowlog = /var/www/{{ item.url }}/logs/php-slow.log
 ;       (error_log, sessions.save_path, ...).
 ; Default Value: not set
 ;chroot =
+prefix = /var/www/{{ item.url }}
+chroot = $prefix
 
 ; Chdir to this directory at the start.
 ; Note: relative path can be used.
 ; Default Value: current directory or / when chroot
-;chdir = /var/www
+;chdir = /
+chdir = /www
 
 ; Redirect worker stdout and stderr into main error log. If not set, stdout and
 ; stderr will be redirected to /dev/null according to FastCGI specs.
@@ -178,7 +181,16 @@ slowlog = /var/www/{{ item.url }}/logs/php-slow.log
 ; Default Value: nothing is defined by default except the values in php.ini and
 ;                specified at startup with the -d argument
 ;php_admin_value[sendmail_path] = /usr/sbin/sendmail -t -i -f www@my.domain.com
+
 php_flag[display_errors] = off
 php_admin_value[error_log] = /var/www/{{ item.url }}/logs/php-error.log
 php_admin_flag[log_errors] = on
-;php_admin_value[memory_limit] = 32M
+
+php_admin_value[disable_functions] = exec,passthru,shell_exec,system
+php_admin_flag[allow_url_fopen] = off
+
+php_admin_value[memory_limit] = 128M
+
+; env[TMP] = /tmp
+; env[TMPDIR] = /tmp
+; env[TEMP] = /tmp
