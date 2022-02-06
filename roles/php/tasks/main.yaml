@@ -21,6 +21,7 @@
   copy:
     src: ./files/apcu.ini
     dest: "/etc/php/{{ php.version }}/mods-available/apcu.ini"
+  notify: reload php
   tags: [php-apc]
 
 - name: Set PHP upload max filesize
@@ -58,6 +59,7 @@
     src: ./templates/fpm-pool.conf.j2
     dest: "/etc/php/{{ php.version }}/fpm/pool.d/{{ item.name }}.conf"
   with_items: "{{ sites }}"
+  notify: reload php
   tags: [php-pools]
 
 - name: Remove "default" php pool
