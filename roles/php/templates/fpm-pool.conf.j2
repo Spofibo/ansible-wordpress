@@ -8,7 +8,8 @@ listen = /run/php/php8.1-{{ item.name }}-fpm.sock
 listen.owner = {{ php.user_group }}
 listen.group = {{ php.user_group }}
 listen.mode = 0660
-listen.allowed_clients = 127.0.0.1
+; Makes sense only for TCP connections
+;listen.allowed_clients = 127.0.0.1
 
 pm = dynamic
 
@@ -21,22 +22,22 @@ pm = dynamic
 ; forget to tweak pm.* to fit your needs.
 ; Note: Used when pm is set to 'static', 'dynamic' or 'ondemand'
 ; Note: This value is mandatory.
-pm.max_children = 5
+pm.max_children = 30
 
 ; The number of child processes created on startup.
 ; Note: Used only when pm is set to 'dynamic'
 ; Default Value: (min_spare_servers + max_spare_servers) / 2
-pm.start_servers = 2
+pm.start_servers = 10
 
 ; The desired minimum number of idle server processes.
 ; Note: Used only when pm is set to 'dynamic'
 ; Note: Mandatory when pm is set to 'dynamic'
-pm.min_spare_servers = 1
+pm.min_spare_servers = 3
 
 ; The desired maximum number of idle server processes.
 ; Note: Used only when pm is set to 'dynamic'
 ; Note: Mandatory when pm is set to 'dynamic'
-pm.max_spare_servers = 3
+pm.max_spare_servers = 25
 
 ; The number of rate to spawn child processes at once.
 ; Note: Used only when pm is set to 'dynamic'
@@ -112,14 +113,16 @@ slowlog = /var/www/{{ item.url }}/logs/php-slow.log
 ;       (error_log, sessions.save_path, ...).
 ; Default Value: not set
 ;chroot =
-prefix = /var/www/{{ item.url }}
-chroot = $prefix
+
+; @TOOD => get this working
+; prefix = /var/www/{{ item.url }} 
+; chroot = $prefix
 
 ; Chdir to this directory at the start.
 ; Note: relative path can be used.
 ; Default Value: current directory or / when chroot
 ;chdir = /
-chdir = /www
+chdir = /
 
 ; Redirect worker stdout and stderr into main error log. If not set, stdout and
 ; stderr will be redirected to /dev/null according to FastCGI specs.
@@ -186,11 +189,9 @@ php_flag[display_errors] = off
 php_admin_value[error_log] = /var/www/{{ item.url }}/logs/php-error.log
 php_admin_flag[log_errors] = on
 
+php_admin_value[open_basedir] = /var/www/{{ item.url }}:/usr/share/php:/tmp
 php_admin_value[disable_functions] = exec,passthru,shell_exec,system
+; php_admin_value[disable_functions] = dl,exec,passthru,shell_exec,system,proc_open,popen,curl_exec,curl_multi_exec,parse_ini_file,show_source
 php_admin_flag[allow_url_fopen] = off
 
 php_admin_value[memory_limit] = 128M
-
-; env[TMP] = /tmp
-; env[TMPDIR] = /tmp
-; env[TEMP] = /tmp
