@@ -1,28 +1,59 @@
 user {{ php.user_group }};
-worker_processes  auto;
 
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
+# Set to number of CPU cores, auto will try to autodetect.
+worker_processes auto;
+
+# Maximum open file descriptors per process. Should be greater than worker_connections.
+worker_rlimit_nofile 8192;
+
+# File that stores the process ID. Rarely needs changing.
+pid /var/run/nginx.pid;
 
 events {
-    worker_connections  1024;
+    # Set the maximum number of connection each worker process can open. Anything higher than this
+    # will require Unix optimisations.
+    worker_connections 8000;
+
+    # Accept all new connections as they're opened.
+    multi_accept on;
 }
 
 http {
+    # Speed up file transfer by using sendfile().
+    sendfile on;
+
+    # Don't send partial frames, which increases throughput.
+    tcp_nopush on;
+
+    # Don't wait to send data in keep-alive state.
+    tcp_nodelay on;
+
+    # MIME Types
     include       /etc/nginx/mime.types;
     default_type  application/octet-stream;
+
+    # How long each connection should stay open for.
+    keepalive_timeout 60;
+
+    # Timeout for reading client request body.
+    client_body_timeout 30;
+
+    # Timeout for reading client request header.
+    client_header_timeout 30;
+
+    # Timeout for transmitting reponse to client.
+    send_timeout 30;
 
     log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                       '$status $body_bytes_sent "$http_referer" '
                       '"$http_user_agent" "$http_x_forwarded_for"';
 
     access_log  /var/log/nginx/access.log  main;
+    error_log   /var/log/nginx/error.log   warn;
 
-    sendfile        on;
-    #tcp_nopush     on;
-
-    keepalive_timeout  65;
-
+    # Modules
     include /etc/nginx/conf.d/*.conf;
+
+    # Sites
     include /etc/nginx/sites-enabled/*;
 }
