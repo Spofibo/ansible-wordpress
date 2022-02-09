@@ -31,10 +31,11 @@
     owner: "{{ item[0].name }}"
     group: "{{ item[0].name }}"
     mode: "0750"
+  when: not item[0].restore_from_backup
   with_nested:
     - "{{ sites }}"
     - ["www", "logs", "tmp"]
-  tags: [wordpress]
+  tags: [wp-directories]
 
 - name: Download Wordpress
   command: >
@@ -42,15 +43,23 @@
     --allow-root --no-color --path='/var/www/{{ item.url }}/www'
   args:
     creates: "/var/www/{{ item.url }}/www/index.php"
+  when: not item.restore_from_backup
   loop: "{{ sites }}"
-  tags: [wordpress]
+  tags: [wp-download]
 
 - name: Set up wp-config
   template:
     src: ./templates/wp-config.php.j2
     dest: "/var/www/{{ item.url }}/www/wp-config.php"
+  when: not item.restore_from_backup
   loop: "{{ sites }}"
-  tags: [wordpress, wp-config]
+  tags: [wp-config]
+
+- name: Restore from backup
+  command: "{{ item.restore_command }}"
+  when: item.restore_from_backup
+  loop: "{{ sites }}"
+  tags: [wp-restore]
 
 - name: Set ownership
   file:
@@ -60,17 +69,17 @@
     owner: "{{ item.name }}"
     group: "{{ php.user_group }}"
   loop: "{{ sites }}"
-  tags: [wordpress, permissions]
+  tags: [wp-permissions]
 
 - name: Set permissions for directories
   shell: "/usr/bin/find /var/www/{{ item.url }}/www/ -type d -exec chmod 750 {} \\;"
   loop: "{{ sites }}"
-  tags: [wordpress, permissions]
+  tags: [wp-permissions]
 
 - name: Set permissions for files
   shell: "/usr/bin/find /var/www/{{ item.url }}/www/ -type f -exec chmod 640 {} \\;"
   loop: "{{ sites }}"
-  tags: [wordpress, permissions]
+  tags: [wp-permissions]
 
 ################################
 ## Configure vhosts for sites ##
