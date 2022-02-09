@@ -27,7 +27,7 @@ certbot_cloudflare_api_token: ""
 # PHP                                                                          #
 ################################################################################
 php:
-  version: 8.1
+  version: 7.4
   upload_max_filesize: 64M
   post_max_size: 64M
   user_group: www-data
@@ -43,6 +43,7 @@ php:
 sites:
   - name: alpha
     url: alpha.com
+    restore_from_backup: false
     db:
       - host: mysql.com
         port: 3306
@@ -51,6 +52,8 @@ sites:
         username: wp_1_u
   - name: beta
     url: beta.com
+    restore_from_backup: true
+    restore_command: "ln -sfn /data/beta.com /var/www/beta.com",
     db:
       - host: mysql.com
         port: 3306
