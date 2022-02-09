@@ -1,5 +1,5 @@
 php:
-  version: 8.1
+  version: 7.4
   upload_max_filesize: 64M
   post_max_size: 64M
   user_group: www-data
