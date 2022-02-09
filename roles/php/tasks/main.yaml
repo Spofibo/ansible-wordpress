@@ -11,10 +11,19 @@
     - "php{{ php.version }}-fpm"
     - "php{{ php.version }}-imagick"
     - "php{{ php.version }}-intl"
+    - "php{{ php.version }}-memcached"
     - "php{{ php.version }}-mbstring"
     - "php{{ php.version }}-mysql"
+    - "php{{ php.version }}-tidy"
     - "php{{ php.version }}-xml"
     - "php{{ php.version }}-zip"
+  tags: [php-packages]
+
+- name: Clear unnecessary php packages
+  apt: name={{ item }} update_cache=yes state=absent
+  loop:
+    - php-apcu-bc
+    - php7.4-apcu-bc
   tags: [php-packages]
 
 - name: Copy APCu configuration
@@ -42,6 +51,17 @@
   notify: reload php
   tags: [php-ini]
 
+# https://stackoverflow.com/questions/23382615/apc-apcu-opcache-performance-poor
+# https://wp-rocket.me/blog/best-php-accelerators/
+- name: Enable OPCache
+  lineinfile:
+    dest: /etc/php/{{ php.version }}/fpm/php.ini
+    regexp: "^;opcache.enable"
+    line: "opcache.enable = 1"
+    state: present
+  notify: reload php
+  tags: [php-ini]
+
 - name: Create new users for sites
   user:
     name: "{{ item.name }}"
@@ -56,7 +76,7 @@
 
 - name: Configure fpm pools for all the sites
   template:
-    src: ./templates/fpm-pool.conf.j2
+    src: "./templates/fpm{{ php.version }}-pool.conf.j2"
     dest: "/etc/php/{{ php.version }}/fpm/pool.d/{{ item.name }}.conf"
   with_items: "{{ sites }}"
   notify: reload php
