@@ -1,8 +1,10 @@
 os:
   timezone: "Europe/London"
   packages:
+    - brotli
     - fail2ban
     - git
+    - memcached
     - mcrypt
     - net-tools
   admin_user: admin
