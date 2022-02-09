@@ -51,8 +51,6 @@
   notify: reload php
   tags: [php-ini]
 
-# https://stackoverflow.com/questions/23382615/apc-apcu-opcache-performance-poor
-# https://wp-rocket.me/blog/best-php-accelerators/
 - name: Enable OPCache
   lineinfile:
     dest: /etc/php/{{ php.version }}/fpm/php.ini
