@@ -41,3 +41,4 @@
   args:
     creates: /etc/letsencrypt/renewal/{{ item.url }}.conf
   loop: "{{ sites }}"
+  tags: [cerbot-certificate]
