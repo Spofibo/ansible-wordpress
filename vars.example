@@ -6,9 +6,12 @@
 os:
   timezone: "Europe/London"
   packages:
+    - brotli
     - fail2ban
     - git
+    - memcached
     - mcrypt
+    - mysql-client
     - net-tools
   admin_user: walter
 
