@@ -6,5 +6,6 @@ os:
     - git
     - memcached
     - mcrypt
+    - mysql-client
     - net-tools
   admin_user: admin
