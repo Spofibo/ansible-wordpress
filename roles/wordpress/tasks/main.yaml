@@ -67,7 +67,7 @@
     state: directory
     recurse: yes
     owner: "{{ item.name }}"
-    group: "{{ php.user_group }}"
+    group: "{{ item.name }}"
   loop: "{{ sites }}"
   tags: [wp-permissions]
 
@@ -78,6 +78,15 @@
 
 - name: Set permissions for files in www/ subdirectory
   shell: "/usr/bin/find /var/www/{{ item.url }}/www/ -type f -exec chmod 640 {} \\;"
+  loop: "{{ sites }}"
+  tags: [wp-permissions]
+
+- name: Set permissions for wp-config file
+  file:
+    path: "/var/www/{{ item.url }}/www/wp-config.php"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0400'
   loop: "{{ sites }}"
   tags: [wp-permissions]
 
