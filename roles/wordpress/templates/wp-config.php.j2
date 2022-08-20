@@ -1,4 +1,15 @@
 <?php
+
+/** Enable W3 Total Cache */
+define('WP_CACHE', true); // Added by W3 Total Cache
+
+// Custom configs
+define( 'DISABLE_WP_CRON', true);
+define( 'WP_MEMORY_LIMIT', '128M');
+define( 'WP_DEBUG_LOG', '/var/www/{{ item.url }}/logs/wp-debug.log' );
+define( 'WP_DEBUG_DISPLAY', false );
+@ini_set( 'display_errors', 0 );
+
 /**
  * The base configuration for WordPress
  *
@@ -36,9 +47,6 @@ define( 'DB_CHARSET', 'utf8' );
 
 /** The Database Collate type. Don't change this if in doubt. */
 define( 'DB_COLLATE', '' );
-
-/** Filesystem access **/
-define('FS_METHOD', 'direct');
 
 /**#@+
  * Authentication Unique Keys and Salts.
@@ -80,7 +88,7 @@ $table_prefix = 'wp_';
  *
  * @link https://codex.wordpress.org/Debugging_in_WordPress
  */
-define( 'WP_DEBUG', false );
+define( 'WP_DEBUG', TRUE ); # Redirected to file log
 
 /* That's all, stop editing! Happy publishing. */
 
