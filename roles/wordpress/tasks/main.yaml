@@ -1,7 +1,4 @@
 ---
-################################################################################
-# WordPress Configuration                                                      #
-################################################################################
 - name: Check for WP-CLI
   stat:
     path: /usr/bin/wp
@@ -97,22 +94,3 @@
     job: "/usr/bin/php /var/www/{{ item.url }}/www/wp-cron.php 2>&1 | grep -v 'PHP Warning:  error_reporting() has been disabled for security reasons'"
   loop: "{{ sites }}"
   tags: [wp-cron]
-
-################################
-## Configure vhosts for sites ##
-################################
-- name: Configure vhost for domains
-  template:
-    src: ./templates/vhost.conf.j2
-    dest: "/etc/nginx/sites-available/{{ item.url }}.conf"
-  loop: "{{ sites }}"
-  tags: [vhosts]
-
-- name: Enables new site
-  file:
-    src: "/etc/nginx/sites-available/{{ item.url }}.conf"
-    dest: "/etc/nginx/sites-enabled/{{ item.url }}.conf"
-    state: link
-  loop: "{{ sites }}"
-  notify: reload nginx
-  tags: [vhosts]
