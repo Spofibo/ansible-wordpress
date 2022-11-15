@@ -42,3 +42,12 @@
     creates: /etc/letsencrypt/renewal/{{ item.url }}.conf
   loop: "{{ sites }}"
   tags: [cerbot-certificate]
+
+- name: Configure a cron job to run twice a day and check for certificates to renew
+  cron:
+    name: "execute wp-cron for {{ item.name }}"
+    minute: "0"
+    hour: "*/12"
+    job: "certbot renew --post-hook 'service nginx reload'"
+  loop: "{{ sites }}"
+  tags: [wp-cron]
