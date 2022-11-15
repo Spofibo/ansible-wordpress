@@ -8,4 +8,5 @@ os:
     - mcrypt
     - mysql-client
     - net-tools
+    - locate
   admin_user: admin
