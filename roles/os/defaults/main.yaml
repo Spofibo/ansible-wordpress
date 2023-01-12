@@ -9,4 +9,5 @@ os:
     - mysql-client
     - net-tools
     - locate
+    - sysstat
   admin_user: admin
