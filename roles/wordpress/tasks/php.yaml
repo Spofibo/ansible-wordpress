@@ -1,0 +1,10 @@
+---
+
+- name: Configure fpm pools for all the sites
+  template:
+    src: "./templates/fpm{{ php.version }}-pool.conf.j2"
+    dest: "/etc/php/{{ php.version }}/fpm/pool.d/{{ item.name }}.conf"
+  with_items: "{{ sites }}"
+  when: item.enabled
+  notify: reload php
+  tags: [php-pools]

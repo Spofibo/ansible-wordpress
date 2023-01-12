@@ -1,96 +1,13 @@
 ---
-- name: Check for WP-CLI
-  stat:
-    path: /usr/bin/wp
-  register: wpcli
-  tags: [wp-cli]
 
-- name: Install WP-CLI
-  get_url:
-    url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-    dest: /usr/bin/wp
-    mode: 0755
-  when: not wpcli.stat.exists
-  tags: [wp-cli]
+- import_tasks: users.yaml
+  tags: [site-system-users]
 
-- name: Install WP-CLI tab completions
-  get_url:
-    url: https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
-    dest: /etc/bash_completion.d
-    mode: 0644
-  when: not wpcli.stat.exists
-  tags: [wp-cli]
+- import_tasks: php.yaml
+  tags: [wordpress-php]
 
-- name: Create required directories for WordPress sites
-  file:
-    path: "/var/www/{{ item[0].url }}/{{ item[1] }}"
-    state: directory
-    owner: "{{ item[0].name }}"
-    group: "{{ item[0].name }}"
-    mode: "0750"
-  when: not item[0].restore_from_backup
-  with_nested:
-    - "{{ sites }}"
-    - ["www", "logs", "tmp"]
-  tags: [wp-directories]
+- import_tasks: wordpress.yaml
+  tags: [wordpress-setup]
 
-- name: Download Wordpress
-  command: >
-    wp core download
-    --allow-root --no-color --path='/var/www/{{ item.url }}/www'
-  args:
-    creates: "/var/www/{{ item.url }}/www/index.php"
-  when: not item.restore_from_backup
-  loop: "{{ sites }}"
-  tags: [wp-download]
-
-- name: Set up wp-config
-  template:
-    src: ./templates/wp-config.php.j2
-    dest: "/var/www/{{ item.url }}/www/wp-config.php"
-  when: not item.restore_from_backup
-  loop: "{{ sites }}"
-  tags: [wp-config]
-
-- name: Restore from backup
-  command: "{{ item.restore_command }}"
-  when: item.restore_from_backup
-  loop: "{{ sites }}"
-  tags: [wp-restore]
-
-- name: Set ownership for root directory and its contents
-  file:
-    path: "/var/www/{{ item.url }}/"
-    state: directory
-    recurse: yes
-    owner: "{{ item.name }}"
-    group: "{{ item.name }}"
-  loop: "{{ sites }}"
-  tags: [wp-permissions]
-
-- name: Set permissions for www/ subdirectory
-  shell: "/usr/bin/find /var/www/{{ item.url }}/www/ -type d -exec chmod 750 {} \\;"
-  loop: "{{ sites }}"
-  tags: [wp-permissions]
-
-- name: Set permissions for files in www/ subdirectory
-  shell: "/usr/bin/find /var/www/{{ item.url }}/www/ -type f -exec chmod 640 {} \\;"
-  loop: "{{ sites }}"
-  tags: [wp-permissions]
-
-- name: Set permissions for wp-config file
-  file:
-    path: "/var/www/{{ item.url }}/www/wp-config.php"
-    owner: "{{ item.name }}"
-    group: "{{ item.name }}"
-    mode: '0400'
-  loop: "{{ sites }}"
-  tags: [wp-permissions]
-
-- name: Configure a cron job to run every 15 minutes
-  cron:
-    name: "execute wp-cron for {{ item.name }}"
-    minute: "*/15"
-    job: "/usr/bin/php /var/www/{{ item.url }}/www/wp-cron.php 2>&1 | grep -v 'PHP Warning:  error_reporting() has been disabled for security reasons'"
-  loop: "{{ sites }}"
-  tags: [wp-cron]
+- import_tasks: vhost.yaml
+  tags: [wordpress-vhosts]

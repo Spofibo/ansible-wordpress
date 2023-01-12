@@ -1,0 +1,23 @@
+---
+
+- name: Create new users for sites
+  user:
+    name: "{{ item.name }}"
+    state: present
+    groups: "{{ php.user_group }}"
+    append: true
+    create_home: false
+    home: "/var/www/{{ item.name }}"
+    shell: /sbin/nologin
+  loop: "{{ sites }}"
+  when: item.enabled
+  tags: [configure-site-system-users]
+
+- name: Add '{{ php.user_group }}' to '{{ item.name }}' group
+  user:
+    name: "{{ php.user_group }}"
+    groups: "{{ item.name }}"
+    append: yes
+  loop: "{{ sites }}"
+  when: item.enabled
+  tags: [configure-site-system-users]

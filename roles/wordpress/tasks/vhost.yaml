@@ -1,10 +1,12 @@
 ---
+
 - name: Configure vhost for domains
   template:
     src: ./templates/vhost.conf.j2
     dest: "/etc/nginx/sites-available/{{ item.url }}.conf"
   loop: "{{ sites }}"
-  tags: [vhosts]
+  when: item.enabled
+  tags: [configure-vhosts]
 
 - name: Enables new site
   file:
@@ -12,5 +14,6 @@
     dest: "/etc/nginx/sites-enabled/{{ item.url }}.conf"
     state: link
   loop: "{{ sites }}"
+  when: item.enabled
   notify: reload nginx
-  tags: [vhosts]
+  tags: [enable-vhosts]

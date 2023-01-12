@@ -20,6 +20,3 @@
 
     - role: wordpress
       tags: [wordpress]
-
-    - role: vhosts
-      tags: [vhosts]
