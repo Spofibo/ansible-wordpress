@@ -35,7 +35,7 @@
   notify: reload php
   tags: [php-apc]
 
-- name: Set PHP upload max filesize
+- name: Set upload_max_filesize in php.ini
   lineinfile:
     dest: /etc/php/{{ php.version }}/fpm/php.ini
     regexp: "^upload_max_filesize"
@@ -44,7 +44,7 @@
   notify: reload php
   tags: [php-ini]
 
-- name: Set PHP post max filesize
+- name: Set post_max_size in php.ini
   lineinfile:
     dest: /etc/php/{{ php.version }}/fpm/php.ini
     regexp: "^post_max_size"
@@ -53,7 +53,7 @@
   notify: reload php
   tags: [php-ini]
 
-- name: Enable OPCache
+- name: Enable OPCache in php.ini
   lineinfile:
     dest: /etc/php/{{ php.version }}/fpm/php.ini
     regexp: "^;opcache.enable"
@@ -62,33 +62,32 @@
   notify: reload php
   tags: [php-ini]
 
-- name: Create new users for sites
-  user:
-    name: "{{ item.name }}"
+- name: Configure emergency_restart_threshold in php-fpm.conf
+  lineinfile:
+    dest: /etc/php/{{ php.version }}/fpm/php-fpm.conf
+    regexp: "^;emergency_restart_threshold"
+    line: "emergency_restart_threshold = 10"
     state: present
-    groups: "{{ php.user_group }}"
-    append: true
-    create_home: false
-    home: "/var/www/{{ item.name }}"
-    shell: /sbin/nologin
-  loop: "{{ sites }}"
-  tags: [php-users]
-
-- name: Add '{{ php.user_group }}' to '{{ item.name }}' group
-  user:
-    name: "{{ php.user_group }}"
-    groups: "{{ item.name }}"
-    append: yes
-  loop: "{{ sites }}"
-  tags: [php-users]
-
-- name: Configure fpm pools for all the sites
-  template:
-    src: "./templates/fpm{{ php.version }}-pool.conf.j2"
-    dest: "/etc/php/{{ php.version }}/fpm/pool.d/{{ item.name }}.conf"
-  with_items: "{{ sites }}"
   notify: reload php
-  tags: [php-pools]
+  tags: [php-fpm]
+
+- name: Configure emergency_restart_interval in php-fpm.conf
+  lineinfile:
+    dest: /etc/php/{{ php.version }}/fpm/php-fpm.conf
+    regexp: "^;emergency_restart_interval"
+    line: "emergency_restart_interval = 1m"
+    state: present
+  notify: reload php
+  tags: [php-fpm]
+
+- name: Configure process_control_timeout in php-fpm.conf
+  lineinfile:
+    dest: /etc/php/{{ php.version }}/fpm/php-fpm.conf
+    regexp: "^;process_control_timeout"
+    line: "process_control_timeout = 10s"
+    state: present
+  notify: reload php
+  tags: [php-fpm]
 
 - name: Remove "default" php pool
   file:
