@@ -41,6 +41,7 @@
   args:
     creates: /etc/letsencrypt/renewal/{{ item.url }}.conf
   loop: "{{ sites }}"
+  when: item.enabled
   tags: [cerbot-certificates]
 
 - name: Configure a cron job to run twice a day and check for certificates to renew
