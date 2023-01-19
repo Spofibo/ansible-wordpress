@@ -90,8 +90,8 @@
 
 - name: Configure a cron job to run every 15 minutes
   cron:
-    name: "execute wp-cron for {{ item.name }}"
+    name: "execute wp-cron for {{ item.name }} as {{ item.name }} user"
     minute: "*/15"
-    job: "/usr/bin/php /var/www/{{ item.url }}/www/wp-cron.php 2>&1 | grep -v 'PHP Warning:  error_reporting() has been disabled for security reasons'"
+    job: "{{ item.name }} /usr/bin/php /var/www/{{ item.url }}/www/wp-cron.php 2>&1 | grep -v 'PHP Warning:  error_reporting() has been disabled for security reasons'"
   loop: "{{ sites }}"
   tags: [wp-cron]
