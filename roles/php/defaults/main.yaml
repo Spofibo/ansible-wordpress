@@ -1,7 +1,8 @@
 ---
 
 php:
-  version: 7.4
+  active_version: 8.1
+  available_versions: ["8.1"]
   upload_max_filesize: 64M
   post_max_size: 64M
   user_group: www-data
