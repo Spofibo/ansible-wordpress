@@ -4,22 +4,10 @@
 # PHP Configuration                                                            #
 ################################################################################
 - name: Install PHP Packages
-  apt: name={{ item }} update_cache=yes state=latest
-  loop:
-    - "php{{ php.version }}-apcu"
-    - "php{{ php.version }}-cli"
-    - "php{{ php.version }}-curl"
-    - "php{{ php.version }}-fpm"
-    - "php{{ php.version }}-gd"
-    - "php{{ php.version }}-imagick"
-    - "php{{ php.version }}-intl"
-    - "php{{ php.version }}-memcached"
-    - "php{{ php.version }}-mbstring"
-    - "php{{ php.version }}-mysql"
-    - "php{{ php.version }}-opcache"
-    - "php{{ php.version }}-tidy"
-    - "php{{ php.version }}-xml"
-    - "php{{ php.version }}-zip"
+  apt: name=php{{ item[0] }}-{{ item[1] }} update_cache=yes state=latest
+  with_nested:
+    - "{{ php.available_versions }}"
+    - ["apcu", "cli", "curl", "fpm", "gd", "imagick", "intl", "memcached", "mbstring", "mysql", "opcache", "tidy", "xml", "zip"]
   tags: [php-packages]
 
 - name: Clear unnecessary php packages
@@ -32,66 +20,82 @@
 - name: Copy APCu configuration
   copy:
     src: ./files/apcu.ini
-    dest: "/etc/php/{{ php.version }}/mods-available/apcu.ini"
+    dest: "/etc/php/{{ item }}/mods-available/apcu.ini"
+  with_items: 
+    - "{{ php.available_versions }}"
   notify: reload php
   tags: [php-apc]
 
 - name: Set upload_max_filesize in php.ini
   lineinfile:
-    dest: /etc/php/{{ php.version }}/fpm/php.ini
+    dest: /etc/php/{{ item }}/fpm/php.ini
     regexp: "^upload_max_filesize"
     line: "upload_max_filesize = {{ php.upload_max_filesize }}"
     state: present
+  with_items: 
+    - "{{ php.available_versions }}"
   notify: reload php
   tags: [php-ini]
 
 - name: Set post_max_size in php.ini
   lineinfile:
-    dest: /etc/php/{{ php.version }}/fpm/php.ini
+    dest: /etc/php/{{ item }}/fpm/php.ini
     regexp: "^post_max_size"
     line: "post_max_size = {{ php.post_max_size }}"
     state: present
+  with_items: 
+    - "{{ php.available_versions }}"
   notify: reload php
   tags: [php-ini]
 
 - name: Enable OPCache in php.ini
   lineinfile:
-    dest: /etc/php/{{ php.version }}/fpm/php.ini
+    dest: /etc/php/{{ item }}/fpm/php.ini
     regexp: "^;opcache.enable"
     line: "opcache.enable = 1"
     state: present
+  with_items: 
+    - "{{ php.available_versions }}"
   notify: reload php
   tags: [php-ini]
 
 - name: Configure emergency_restart_threshold in php-fpm.conf
   lineinfile:
-    dest: /etc/php/{{ php.version }}/fpm/php-fpm.conf
+    dest: /etc/php/{{ item }}/fpm/php-fpm.conf
     regexp: "^;emergency_restart_threshold"
     line: "emergency_restart_threshold = 10"
     state: present
+  with_items: 
+    - "{{ php.available_versions }}"
   notify: reload php
   tags: [php-fpm]
 
 - name: Configure emergency_restart_interval in php-fpm.conf
   lineinfile:
-    dest: /etc/php/{{ php.version }}/fpm/php-fpm.conf
+    dest: /etc/php/{{ item }}/fpm/php-fpm.conf
     regexp: "^;emergency_restart_interval"
     line: "emergency_restart_interval = 1m"
     state: present
+  with_items: 
+    - "{{ php.available_versions }}"
   notify: reload php
   tags: [php-fpm]
 
 - name: Configure process_control_timeout in php-fpm.conf
   lineinfile:
-    dest: /etc/php/{{ php.version }}/fpm/php-fpm.conf
+    dest: /etc/php/{{ item }}/fpm/php-fpm.conf
     regexp: "^;process_control_timeout"
     line: "process_control_timeout = 10s"
     state: present
+  with_items: 
+    - "{{ php.available_versions }}"
   notify: reload php
   tags: [php-fpm]
 
 - name: Remove "default" php pool
   file:
-    path: "/etc/php/{{ php.version }}/fpm/pool.d/www.conf"
+    path: "/etc/php/{{ item }}/fpm/pool.d/www.conf"
     state: absent
+  with_items: 
+    - "{{ php.available_versions }}"
   notify: reload php

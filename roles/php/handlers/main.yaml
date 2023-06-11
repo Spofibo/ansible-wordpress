@@ -2,15 +2,21 @@
 
 - name: start php
   service:
-    name: php{{ php.version }}-fpm
+    name: php{{ item }}-fpm
     state: started
+  with_items:
+    - "{{ php.available_versions }}"
 
 - name: reload php
   service:
-    name: php{{ php.version }}-fpm
+    name: php{{ item }}-fpm
     state: reloaded
+  with_items: 
+    - "{{ php.available_versions }}"
 
 - name: restart php
   service:
-    name: php{{ php.version }}-fpm
+    name: php{{ item }}-fpm
     state: restarted
+  with_items: 
+    - "{{ php.available_versions }}"
