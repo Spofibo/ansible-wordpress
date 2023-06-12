@@ -35,14 +35,20 @@ certbot_cloudflare_api_token: ""
 # PHP                                                                          #
 ################################################################################
 php:
-  version: 7.4
+  active_version: 7.4
+  available_versions: ["7.4", "8.0", "8.1"]
   upload_max_filesize: 64M
   post_max_size: 64M
   user_group: www-data
 
 ################################################################################
-# Wordpress                                                                    #
+# Sites                                                                        #
 ################################################################################
+env: prod
+
+db:
+  host: mydb.service.com
+  port: 3306
 
 ##
 # This can be removed if, for example, you dinamically generate it inside the
@@ -51,20 +57,48 @@ php:
 sites:
   - name: alpha
     url: alpha.com
-    restore_from_backup: false
+    restore:
+      from_backup: false
     db:
-      - host: mysql.com
-        port: 3306
-        name: wp_1_db
-        password: mock
-        username: wp_1_u
+      host: localhost
+      port: 3306
+      name: wp_1_db
+      password: mock
+      username: wp_1_u
+    php:
+      version: 7.4
+    nginx:
+      block_nginx_conf: false
+
   - name: beta
     url: beta.com
-    restore_from_backup: true
-    restore_command: "ln -sfn /data/beta.com /var/www/beta.com",
+    restore:
+      from_backup: true
+      command: "ln -sfn /data/beta.com /var/www/beta.com",
     db:
-      - host: mysql.com
-        port: 3306
-        name: wp_2_db
-        password: mock
-        username: wp_2_u
+      name: wp_2_db
+      password: mock
+      username: wp_2_u
+    php:
+      version: 8.0
+    nginx:
+      block_nginx_conf: false
+      
+  - name: gamma
+    url: gamma.com
+    restore:
+      from_backup: true
+      command: "ln -sfn /data/gamma.com /var/www/gamma.com",
+    db:
+      name: wp_3_db
+      password: mock
+      username: wp_3_u
+    php:
+      version: 8.1
+      max_children: 6
+      max_spare_servers: 6
+      memory_limit: 256M
+      min_spare_servers: 2
+      start_servers: 4
+    nginx:
+      block_nginx_conf: true

@@ -1,5 +1,2 @@
-[all:vars]
-env=prod
-
 [servers]
 i-0a738df1dc7f00fb0 ansible_host=127.0.0.1 ansible_ssh_user=ec2-user ansible_python_interpreter=/usr/bin/python3
