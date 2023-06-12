@@ -9,8 +9,8 @@ define( 'DISALLOW_FILE_EDIT', true ); // Disable File Editor - Security > Settin
 define('WP_CACHE', true); // Added by W3 Total Cache
 
 // Custom configs
+define( 'WP_MEMORY_LIMIT', "{{ item.php.memory_limit | default('128M') }}");
 define( 'DISABLE_WP_CRON', true);
-define( 'WP_MEMORY_LIMIT', '128M');
 define( 'WP_DEBUG_LOG', '/var/www/{{ item.url }}/logs/wp-debug.log' );
 define( 'WP_DEBUG_DISPLAY', false );
 @ini_set( 'display_errors', 0 );
@@ -45,7 +45,11 @@ define( 'DB_USER', '{{ item.db.username }}' );
 define( 'DB_PASSWORD', '{{ item.db.password }}' );
 
 /** MySQL hostname */
-define( 'DB_HOST', '{{ item.db.host }}:{{ item.db.port }}' );
+{% if 'host' in item.db %}
+	define( 'DB_HOST', '{{ item.db.host }}:{{ item.db.port }}' );
+{% else %}
+	define( 'DB_HOST', '{{ db.host }}:{{ db.port }}' );
+{% endif %}
 
 /** Database Charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8' );
