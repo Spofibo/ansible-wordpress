@@ -7,7 +7,7 @@
     groups: "{{ php.user_group }}"
     append: true
     create_home: false
-    home: "/var/www/{{ item.name }}"
+    home: "/var/www/{{ item.url }}"
     shell: /sbin/nologin
   loop: "{{ sites }}"
   when: item.enabled
