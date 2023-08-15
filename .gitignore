@@ -6,6 +6,7 @@
 # Ansible
 vars.yaml
 inventory
+inventory.yaml
 ansible.cfg
 roles/nginx/files/dhparams.pem
 roles/*
