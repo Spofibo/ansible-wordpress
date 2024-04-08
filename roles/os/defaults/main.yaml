@@ -12,4 +12,5 @@ os:
     - net-tools
     - locate
     - sysstat
+    - logrotate
   admin_user: admin

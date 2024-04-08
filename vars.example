@@ -13,6 +13,9 @@ os:
     - mcrypt
     - mysql-client
     - net-tools
+    - locate
+    - sysstat
+    - logrotate
   admin_user: walter
 
 ################################################################################
