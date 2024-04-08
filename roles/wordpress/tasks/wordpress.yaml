@@ -92,6 +92,6 @@
   cron:
     name: "execute wp-cron for {{ item.name }} as {{ item.name }} user"
     minute: "*/15"
-    job: "{{ item.name }} /usr/bin/php /var/www/{{ item.url }}/www/wp-cron.php 2>&1 | grep -v 'PHP Warning:  error_reporting() has been disabled for security reasons'"
+    job: "{{ item.name }} /usr/bin/php /var/www/{{ item.url }}/www/wp-cron.php?doing_wp_cron 2>&1 | grep -v 'PHP Warning:  error_reporting() has been disabled for security reasons'"
   loop: "{{ sites }}"
   tags: [wp-cron]
